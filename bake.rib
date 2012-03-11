@@ -1,0 +1,61 @@
+DisplayChannel "float _area"
+
+FrameBegin 1
+	#Format 1280 1024 1
+	PixelSamples 4 4	
+	ShadingInterpolation "smooth"
+	Display "bake.tiff" "file" "rgba"  # render image to buffer
+	#Display "First Pass" "framebuffer" "rgba"  # render image to buffer
+	Projection "perspective" "fov" 22
+	Translate 0.5 0 10
+	Rotate -40 1 0 0
+	Rotate -20 0 1 0 
+
+    LightSource "spotlight" 1
+                    "intensity" [ 60.0 ]
+                    "to" [ -2.0 0.0 0.0 ]
+                    "from" [ -4 8 2 ]
+                    "lightcolor" [ 1.0 1.0 1.0 ]
+                    "coneangle" [ 0.7 ]
+                    "conedeltaangle" [ 0.1 ]
+
+	LightSource "spotlight" 2
+                    "intensity" [ 60.0 ]
+                    "to" [ 1.0 0.0 -1.0 ]
+                    "from" [ 2 8 1 ]
+                    "lightcolor" [ 1.0 1.0 1.0 ]
+                    "coneangle" [ 0.7 ]
+                    "conedeltaangle" [ 0.1 ]
+
+
+	WorldBegin
+		# these attributes are important for point based occlusion to work
+		Attribute "cull" "backfacing" 0
+		Attribute "cull" "hidden" 0
+		Attribute "dice" "rasterorient" 0
+
+		ShadingRate 5   # You can afford to bake out a higher shading rate
+		Surface "bake_areas" "filename" "areacloud.ptc"
+
+		# ground plane
+		AttributeBegin	
+			Color [1 1 1]
+			Polygon "P" [ -5 0 5  5 0 5  5 0 -5  -5 0 -5 ] 
+					"uniform normal N" [ 0 1 0 ]
+		AttributeEnd
+
+		# torus
+		AttributeBegin
+			Attribute "displacementbound" "float sphere" [ 1 ]
+			Displacement "bubbly"
+						"bubsize" [ 0.5 ]
+						"Kd" [ -0.25 ]
+						"Nzscale" [ 0.75 ]
+						"mult" [ 5 ] 
+			Color 0.12 1 0.5
+			Translate -0.7  0.5 0
+			Rotate 90 1 0 0 
+			Torus 1.5 0.5 0.0 360 360
+		AttributeEnd
+	WorldEnd
+FrameEnd
